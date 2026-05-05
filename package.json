@@ -1,0 +1,17 @@
+{
+  "name": "caraibinieri",
+  "version": "0.1.0",
+  "description": "An alternative LLM harness/REPL where two officers patrol your prompts, evaluate each other, argue, and play rock-paper-scissors.",
+  "module": "src/main.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/main.ts",
+    "dev": "bun run --watch src/main.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
