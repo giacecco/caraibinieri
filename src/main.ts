@@ -102,7 +102,7 @@ async function runPatrol(userPrompt: string) {
   const rpsResult = await playRockPaperScissors(config, debateContext);
   rpsSpinner.stop();
 
-  theatre.showRpsShowdown(rpsResult.moveA, rpsResult.moveB, rpsResult.rawA, rpsResult.rawB);
+  theatre.showRpsShowdown(rpsResult.rounds);
 
   // 8) The Last Word and declare final winner
   await speakTheLastWordAndShow(rpsResult.winner, responses, evaluations, userPrompt, speeches);

@@ -142,14 +142,26 @@ export class Theatre {
     this.print(`${RED}${BOLD}There is only one honourable way to settle this...${RESET}\n`);
   }
 
-  showRpsShowdown(moveA: string, moveB: string, rawA: string, rawB: string) {
-    this.banner("🪨  📜  ✂️   R O C K  —  P A P E R  —  S C I S S O R S   🪨  📜  ✂️", YELLOW);
-    this.print(`${BLUE}${BOLD}${this.nameA} plays: ${moveA.toUpperCase()}${RESET}`);
-    this.print(`${BLUE}${rawA}${RESET}`);
-    this.print("");
-    this.print(`${MAGENTA}${BOLD}${this.nameB} plays: ${moveB.toUpperCase()}${RESET}`);
-    this.print(`${MAGENTA}${rawB}${RESET}`);
-    this.print("");
+  showRpsShowdown(rounds: import("./tiebreaker.ts").RpsRound[]) {
+    const lastIndex = rounds.length - 1;
+    for (let i = 0; i < rounds.length; i++) {
+      const round = rounds[i];
+      const roundLabel = rounds.length > 1 ? `Round ${i + 1}` : "";
+      if (roundLabel) {
+        this.banner(`🪨  📜  ✂️   R O C K  —  P A P E R  —  S C I S S O R S   —  ${roundLabel}  🪨  📜  ✂️`, YELLOW);
+      } else {
+        this.banner("🪨  📜  ✂️   R O C K  —  P A P E R  —  S C I S S O R S   🪨  📜  ✂️", YELLOW);
+      }
+      this.print(`${BLUE}${BOLD}${this.nameA} plays: ${round.moveA.toUpperCase()}${RESET}`);
+      this.print(`${BLUE}${round.rawA}${RESET}`);
+      this.print("");
+      this.print(`${MAGENTA}${BOLD}${this.nameB} plays: ${round.moveB.toUpperCase()}${RESET}`);
+      this.print(`${MAGENTA}${round.rawB}${RESET}`);
+      this.print("");
+      if (i < lastIndex) {
+        this.print(`${YELLOW}${BOLD}D R A W !  Nobody wins. They go again...${RESET}\n`);
+      }
+    }
   }
 
   declareWinner(officer: "A" | "B", response: string, lastWordReasoning?: string) {
