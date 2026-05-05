@@ -146,11 +146,12 @@ export class Theatre {
     const lastIndex = rounds.length - 1;
     for (let i = 0; i < rounds.length; i++) {
       const round = rounds[i];
-      const roundLabel = rounds.length > 1 ? `Round ${i + 1}` : "";
-      if (roundLabel) {
-        this.banner(`🪨  📜  ✂️   R O C K  —  P A P E R  —  S C I S S O R S   —  ${roundLabel}  🪨  📜  ✂️`, YELLOW);
+      const baseTitle = spacedTitle(["ROCK", "—", "PAPER", "—", "SCISSORS"]);
+      if (rounds.length > 1) {
+        const roundTitle = spacedTitle(["Round", String(i + 1)]);
+        this.banner(`🪨  📜  ✂️   ${baseTitle}  —  ${roundTitle}  🪨  📜  ✂️`, YELLOW);
       } else {
-        this.banner("🪨  📜  ✂️   R O C K  —  P A P E R  —  S C I S S O R S   🪨  📜  ✂️", YELLOW);
+        this.banner(`🪨  📜  ✂️   ${baseTitle}  🪨  📜  ✂️`, YELLOW);
       }
       this.print(`${BLUE}${BOLD}${this.nameA} plays: ${round.moveA.toUpperCase()}${RESET}`);
       this.print(`${BLUE}${round.rawA}${RESET}`);
