@@ -110,9 +110,9 @@ export class Theatre {
     for (const e of evals) {
       const colour = e.officer === "A" ? BLUE : MAGENTA;
       const name = e.officer === "A" ? this.nameA : this.nameB;
-      const prefersName = e.prefers === "A" ? this.nameA : this.nameB;
+      const prefersLabel = e.officer === e.prefers ? "my response" : "your response";
       this.print(`${colour}${BOLD}${name} evaluates:${RESET}`);
-      this.print(`${colour}Prefers: ${prefersName}'s response${RESET}`);
+      this.print(`${colour}Prefers: ${prefersLabel}${RESET}`);
       this.print(`${colour}${e.reasoning}${RESET}`);
       this.print("");
     }
@@ -160,7 +160,7 @@ export class Theatre {
       this.print(`${GREEN}${BOLD}THE LAST WORD:${RESET}`);
       this.print(`${GREEN}${lastWordReasoning}${RESET}\n`);
     }
-    this.print(`${GREEN}${BOLD}The patrol presents the final answer:${RESET}\n`);
+    this.print(`${GREEN}${BOLD}${winnerName} presents the final answer:${RESET}\n`);
     this.print(response);
     this.print("");
     this.print(`${CYAN}${BOLD}──────────────────────────────────────────${RESET}`);
