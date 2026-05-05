@@ -110,7 +110,8 @@ export class Theatre {
     for (const e of evals) {
       const colour = e.officer === "A" ? BLUE : MAGENTA;
       const name = e.officer === "A" ? this.nameA : this.nameB;
-      const prefersLabel = e.officer === e.prefers ? "my response" : "your response";
+      const otherName = e.officer === "A" ? this.nameB : this.nameA;
+      const prefersLabel = e.officer === e.prefers ? "my response" : `${otherName}'s response`;
       this.print(`${colour}${BOLD}${name} evaluates:${RESET}`);
       this.print(`${colour}Prefers: ${prefersLabel}${RESET}`);
       this.print(`${colour}${e.reasoning}${RESET}`);
