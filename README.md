@@ -78,9 +78,9 @@ After both rebuttals are complete, they re-evaluate. If they still disagree, the
 
 ### Rock-Paper-Scissors Tiebreaker
 
-When persuasion fails, the officers play rock-paper-scissors. Each officer is prompted to **strategise and choose a move** (not random — they are asked to think about it). The winner then gets **The Last Word** — using the full debate context to produce an improved final answer for the user.
+When persuasion fails, the officers play rock-paper-scissors. Each officer is prompted to **strategise and choose a move** (not random — they are asked to think about it). On a draw, they go again — and again — until one decisively wins. All rounds are shown on screen. The winner then gets **The Last Word** — using the full debate context to produce an improved final answer for the user.
 
-No retries. No appeals. The law is the law.
+The law is the law.
 
 ### The Last Word
 
@@ -163,6 +163,7 @@ caraibinieri/
 
 ```bash
 # Clone and enter
+git clone https://github.com/giacecco/caraibinieri.git
 cd caraibinieri
 
 # Install dependencies (just TypeScript types)
