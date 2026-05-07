@@ -41,21 +41,30 @@ function buildEvalMessages(
   content +=
     `Which response do you prefer — yours (${selfName}) or ${otherName}'s? ` +
     `Answer exactly with one of these two lines at the very start:\n` +
-    `I prefer ${config.nameA}'s response.\n` +
+    `I prefer my response.\n` +
     `or\n` +
-    `I prefer ${config.nameB}'s response.\n\n` +
+    `I prefer your response.\n\n` +
     `Then explain your reasoning. Always use first person: "my response" and "your response".`;
 
   return [{ role: "user", content }];
 }
 
-function parsePreference(text: string, config: Config): "A" | "B" | null {
+function parsePreference(text: string, config: Config, selfOfficer: "A" | "B"): "A" | "B" | null {
   const firstLine = text.trim().split(/\n/)[0].trim().toLowerCase();
+
+  // First-person detection
+  if (firstLine.includes("my") && firstLine.includes("prefer")) {
+    return selfOfficer;
+  }
+  if (firstLine.includes("your") && firstLine.includes("prefer")) {
+    return selfOfficer === "A" ? "B" : "A";
+  }
+
+  // Fallback to name-based detection for robustness
   const nameA = config.nameA.toLowerCase();
   const nameB = config.nameB.toLowerCase();
   if (firstLine.includes(nameA) && firstLine.includes("prefer")) return "A";
   if (firstLine.includes(nameB) && firstLine.includes("prefer")) return "B";
-  // Fallback in case the model still uses "officer a" / "officer b"
   if (firstLine.includes("officer a") && firstLine.includes("prefer")) return "A";
   if (firstLine.includes("officer b") && firstLine.includes("prefer")) return "B";
   return null;
@@ -77,11 +86,11 @@ export async function evaluateResponses(
 
   const [evalA, evalB] = await Promise.all([
     chatCompletion(config, buildEvalMessages(prompt, aRes, bRes, config, priorDebate), config.modelA).then((text) => {
-      const pref = parsePreference(text, config) ?? "A";
+      const pref = parsePreference(text, config, "A") ?? "A";
       return { officer: "A" as const, prefers: pref, reasoning: stripFirstLine(text) };
     }),
     chatCompletion(config, buildEvalMessages(prompt, bRes, aRes, config, priorDebate), config.modelB).then((text) => {
-      const pref = parsePreference(text, config) ?? "B";
+      const pref = parsePreference(text, config, "B") ?? "B";
       return { officer: "B" as const, prefers: pref, reasoning: stripFirstLine(text) };
     }),
   ]);
