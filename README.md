@@ -122,8 +122,8 @@ The user sees the sausage being made. All of it.
 
 | Variable / Flag | Description | Default |
 |---|---|---|
-| `CARAIBINIERI_API_URL` / `--api-url` | Base URL for the chat completions endpoint | `http://localhost:11434/v1` (Ollama) |
-| `CARAIBINIERI_API_KEY` / `--api-key` | API key (if required by provider) | *(none)* |
+| `CARAIBINIERI_API_URL` / `--apiUrl` | Base URL for the chat completions endpoint | `http://localhost:11434/v1` (Ollama) |
+| `CARAIBINIERI_API_KEY` / `--apiKey` | API key (if required by provider) | *(none)* |
 | `CARAIBINIERI_MODEL` / `--model` | Fallback model name if per-officer models not set | `llama3.1` |
 | `--A` / `--modelA` / `CARAIBINIERI_MODEL_A` | Model for Officer A (e.g. `gemma4:31b-cloud`) | falls back to `--model` |
 | `--B` / `--modelB` / `CARAIBINIERI_MODEL_B` | Model for Officer B (e.g. `llama3.3`) | falls back to `--model` |
@@ -131,7 +131,7 @@ The user sees the sausage being made. All of it.
 | `CARAIBINIERI_NAME_B` / `--nameB` | Name for Officer B | random Italian male name (different from A) |
 | `CARAIBINIERI_TEMPERATURE` / `--temperature` | Sampling temperature | `0.7` |
 | `--verbose` | Show full raw prompts and API responses | `false` |
-| `--no-theatre` | Disable Ace Attorney styling, plain text only | `false` |
+| `--noTheatre` | Disable Ace Attorney styling, plain text only | `false` |
 
 > **Note**: `carAIbinieri` does not inject personas or characters into prompts. The officers are neutral and address each other by their Italian names. Diversity comes from using different models (e.g. `--A gemma4:31b-cloud --B llama3.3`), not from roleplay.
 
@@ -173,7 +173,7 @@ bun install
 bun run src/main.ts
 
 # Run against a remote provider
-bun run src/main.ts --api-url https://api.example.com/v1 --api-key sk-xxx --model mistral-nemo
+bun run src/main.ts --apiUrl https://api.example.com/v1 --apiKey sk-xxx --model mistral-nemo
 
 # Use different models per officer
 bun run src/main.ts --A gemma4:31b-cloud --B llama3.3
@@ -185,15 +185,15 @@ bun run src/main.ts --nameA Giancarlo --nameB Salvatore
 bun run src/main.ts --A qwen2.5:72b --nameA Bruno --B gemma3:27b --nameB Nino
 
 # Plain text mode (no Ace Attorney theatrics)
-bun run src/main.ts --no-theatre
+bun run src/main.ts --noTheatre
 
 # Show raw API prompts/responses
 bun run src/main.ts --verbose
 
 # Both models and names, remote provider
 bun run src/main.ts \
-  --api-url https://openrouter.ai/api/v1 \
-  --api-key sk-or-v1-xxx \
+  --apiUrl https://openrouter.ai/api/v1 \
+  --apiKey sk-or-v1-xxx \
   --A kimi-k2.6:cloud \
   --B deepseek-v4-pro:cloud \
   --nameA Giancarlo \
