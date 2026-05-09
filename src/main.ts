@@ -8,8 +8,22 @@ import { runPersuasionRound } from "./persuasion.ts";
 import { playRockPaperScissors } from "./tiebreaker.ts";
 import { speakTheLastWord } from "./lastWord.ts";
 import { Theatre, Spinner } from "./theatre.ts";
+import { loadHistory, saveHistoryEntry } from "./history.ts";
+import { createInterface } from "node:readline";
 
 const config = loadConfig();
+
+// --- Validate model names ---
+if (!config.modelA || !config.modelB) {
+  console.error("\n❌ Error: You must specify the Ollama models to use.");
+  console.error("   Set --A <model> and --B <model>, or use environment variables:");
+  console.error("     CARAIBINIERI_MODEL_A  (model for officer A)");
+  console.error("     CARAIBINIERI_MODEL_B  (model for officer B)");
+  console.error("     CARAIBINIERI_MODEL    (fallback for both)");
+  console.error("\n   Example: bun run start -- --model llama3.1\n");
+  process.exit(1);
+}
+
 const theatre = new Theatre(config);
 
 if (config.noTheatre) {
@@ -133,30 +147,29 @@ async function speakTheLastWordAndShow(
   theatre.declareWinner(winner, lastWord.improvedResponse, lastWord.reasoning);
 }
 
-// Simple readline loop
-const decoder = new TextDecoder();
-const promptLines: string[] = [];
+// Readline loop with arrow-key history
+const PROMPT = config.noTheatre ? "> " : "\x1b[33m\x1b[1mCitizen> \x1b[0m";
 
-process.stdout.write(config.noTheatre ? "> " : "\x1b[33m\x1b[1mCitizen> \x1b[0m");
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  history: loadHistory(),
+});
 
-for await (const chunk of Bun.stdin.stream()) {
-  const text = decoder.decode(chunk);
-  const lines = text.split(/\r?\n/);
+rl.setPrompt(PROMPT);
+rl.prompt();
 
-  for (const line of lines) {
-    if (line.trim() === "") {
-      // Empty line submits the prompt
-      if (promptLines.length > 0) {
-        const fullPrompt = promptLines.join("\n");
-        promptLines.length = 0;
-        await runPatrol(fullPrompt).catch((err) => {
-          console.error("\nPatrol error:", err.message);
-          if (config.verbose) console.error(err.stack);
-        });
-      }
-      process.stdout.write(config.noTheatre ? "> " : "\x1b[33m\x1b[1mCitizen> \x1b[0m");
-    } else {
-      promptLines.push(line);
-    }
+rl.on("line", async (line) => {
+  saveHistoryEntry(line);
+  rl.history?.push(line);
+
+  const trimmed = line.trim();
+  if (trimmed !== "") {
+    await runPatrol(trimmed).catch((err) => {
+      console.error("\nPatrol error:", err.message);
+      if (config.verbose) console.error(err.stack);
+    });
   }
-}
+  rl.setPrompt(PROMPT);
+  rl.prompt();
+});

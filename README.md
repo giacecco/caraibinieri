@@ -137,6 +137,19 @@ The user sees the sausage being made. All of it.
 
 ---
 
+## Model Validation
+
+The script **refuses to start** unless model names are specified for both officers. You must provide them via:
+
+- CLI flags: `--A <model>` and `--B <model>`, or `--model <model>` (shared fallback)
+- Environment variables: `CARAIBINIERI_MODEL_A`, `CARAIBINIERI_MODEL_B`, or `CARAIBINIERI_MODEL` (fallback)
+
+If models are not configured, the script exits immediately with a clear error message.
+
+## Prompt History
+
+Prompts are persisted to `~/.caraibinieri_history` (up to 2000 lines). On startup, history is loaded into the REPL, so you can browse past prompts with **Arrow-Up / Arrow-Down** and re-submit them. Every non-empty line you type is saved automatically across sessions.
+
 ## Project Structure
 
 ```
@@ -145,7 +158,7 @@ caraibinieri/
 ├── package.json
 ├── tsconfig.json
 ├── src/
-│   ├── main.ts              # CLI entrypoint, REPL loop
+│   ├── main.ts              # CLI entrypoint, REPL loop, model validation
 │   ├── config.ts            # Env/CLI configuration + Italian name picker
 │   ├── api.ts               # Anthropic-compatible API client
 │   ├── officers.ts          # Parallel dual-officer response generation
@@ -153,6 +166,7 @@ caraibinieri/
 │   ├── persuasion.ts        # Persuasion phase (named rebuttals)
 │   ├── tiebreaker.ts        # Rock-paper-scissors logic
 │   ├── lastWord.ts          # The Last Word: winner improves answer
+│   ├── history.ts           # Prompt history persistence across sessions
 │   └── theatre.ts           # Ace Attorney styled output + spinners
 └── bun.lock
 ```
