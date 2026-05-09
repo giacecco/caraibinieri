@@ -8,7 +8,7 @@ export interface OfficerResponse {
   response: string;
 }
 
-const BRITISH_HINT = "Please reply using British English spelling and conventions (e.g. colour, behaviour, honour, centre) where applicable.";
+export const BRITISH_HINT = "Please reply using British English spelling and conventions (e.g. colour, behaviour, honour, centre) where applicable.";
 
 export async function patrolInPairs(
   config: Config,

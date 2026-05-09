@@ -1,4 +1,4 @@
-/** Anthropic-compatible API client for chat completions */
+/** OpenAI-compatible API client for chat completions */
 
 import type { Config } from "./config.ts";
 
@@ -12,7 +12,7 @@ export async function chatCompletion(
   messages: ChatMessage[],
   modelOverride?: string,
 ): Promise<string> {
-  const url = `${config.apiUrl}/chat/completions`;
+  const url = `${config.apiUrl.replace(/\/+$/, "")}/chat/completions`;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

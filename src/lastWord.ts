@@ -2,9 +2,10 @@
 
 import { chatCompletion, type ChatMessage } from "./api.ts";
 import type { Config } from "./config.ts";
-import type { OfficerResponse } from "./officers.ts";
 import type { EvaluationResult } from "./evaluation.ts";
 import type { PersuasionResult } from "./persuasion.ts";
+import type { OfficerResponse } from "./officers.ts";
+import { BRITISH_HINT } from "./officers.ts";
 
 export interface LastWordResult {
   officer: "A" | "B";
@@ -12,8 +13,6 @@ export interface LastWordResult {
   improvedResponse: string;
   reasoning: string;
 }
-
-const BRITISH_HINT = "Please reply using British English spelling and conventions (e.g. colour, behaviour, honour, centre) where applicable.";
 
 function buildLastWordMessages(
   prompt: string,
@@ -25,10 +24,14 @@ function buildLastWordMessages(
 ): ChatMessage[] {
   const winnerName = winner.officer === "A" ? config.nameA : config.nameB;
   const loserName = loser.officer === "A" ? config.nameA : config.nameB;
-  const winnerEval = evaluations.find((e) => e.officer === winner.officer)!;
-  const loserEval = evaluations.find((e) => e.officer === loser.officer)!;
-  const winnerSpeech = speeches.find((s) => s.officer === winner.officer)!;
-  const loserSpeech = speeches.find((s) => s.officer === loser.officer)!;
+  const winnerEval = evaluations.find((e) => e.officer === winner.officer);
+  if (!winnerEval) throw new Error("Missing evaluation for winner in last word phase");
+  const loserEval = evaluations.find((e) => e.officer === loser.officer);
+  if (!loserEval) throw new Error("Missing evaluation for loser in last word phase");
+  const winnerSpeech = speeches.find((s) => s.officer === winner.officer);
+  if (!winnerSpeech) throw new Error("Missing speech for winner in last word phase");
+  const loserSpeech = speeches.find((s) => s.officer === loser.officer);
+  if (!loserSpeech) throw new Error("Missing speech for loser in last word phase");
 
   return [
     {

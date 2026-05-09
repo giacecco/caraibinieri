@@ -160,11 +160,10 @@ rl.setPrompt(PROMPT);
 rl.prompt();
 
 rl.on("line", async (line) => {
-  saveHistoryEntry(line);
-  rl.history?.push(line);
-
   const trimmed = line.trim();
   if (trimmed !== "") {
+    saveHistoryEntry(line);
+    (rl as any).history?.push(line);
     await runPatrol(trimmed).catch((err) => {
       console.error("\nPatrol error:", err.message);
       if (config.verbose) console.error(err.stack);

@@ -69,6 +69,7 @@ export async function playRockPaperScissors(
 ): Promise<RpsResult> {
   const rounds: RpsRound[] = [];
   let roundNumber = 1;
+  const MAX_ROUNDS = 10;
 
   while (true) {
     const [rawA, rawB] = await Promise.all([
@@ -84,6 +85,11 @@ export async function playRockPaperScissors(
     const result = decideWinner(moveA, moveB);
     if (result !== "draw") {
       return { rounds, winner: result };
+    }
+
+    if (roundNumber >= MAX_ROUNDS) {
+      const winner = Math.random() < 0.5 ? "A" as const : "B" as const;
+      return { rounds, winner };
     }
 
     roundNumber++;

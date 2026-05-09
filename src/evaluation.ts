@@ -28,9 +28,12 @@ function buildEvalMessages(
     `Your partner ${otherName}'s response:\n\n"""\n${other.response}\n"""\n\n`;
 
   if (priorDebate) {
-    const otherEval = priorDebate.evaluations.find((e) => e.officer === other.officer)!;
-    const mySpeech = priorDebate.speeches.find((s) => s.officer === self.officer)!;
-    const otherSpeech = priorDebate.speeches.find((s) => s.officer === other.officer)!;
+    const otherEval = priorDebate.evaluations.find((e) => e.officer === other.officer);
+    if (!otherEval) throw new Error("Missing evaluation for other officer in prior debate");
+    const mySpeech = priorDebate.speeches.find((s) => s.officer === self.officer);
+    if (!mySpeech) throw new Error("Missing speech for self in prior debate");
+    const otherSpeech = priorDebate.speeches.find((s) => s.officer === other.officer);
+    if (!otherSpeech) throw new Error("Missing speech for other officer in prior debate");
 
     content +=
       `Earlier, ${otherName} argued:\n\n"""\n${otherEval.reasoning}\n"""\n\n` +
@@ -50,30 +53,36 @@ function buildEvalMessages(
 }
 
 function parsePreference(text: string, config: Config, selfOfficer: "A" | "B"): "A" | "B" | null {
-  const firstLine = text.trim().split(/\n/)[0].trim().toLowerCase();
+  // Search all lines for a first-person preference declaration
+  const lines = text.trim().split(/\n/);
+  for (const rawLine of lines) {
+    const line = rawLine.trim().toLowerCase();
+    if (!line.includes("prefer")) continue;
 
-  // First-person detection
-  if (firstLine.includes("my") && firstLine.includes("prefer")) {
-    return selfOfficer;
-  }
-  if (firstLine.includes("your") && firstLine.includes("prefer")) {
-    return selfOfficer === "A" ? "B" : "A";
+    if (line.includes("my")) return selfOfficer;
+    if (line.includes("your")) return selfOfficer === "A" ? "B" : "A";
   }
 
-  // Fallback to name-based detection for robustness
+  // Fallback to name-based detection in the full text
+  const combined = text.trim().toLowerCase();
   const nameA = config.nameA.toLowerCase();
   const nameB = config.nameB.toLowerCase();
-  if (firstLine.includes(nameA) && firstLine.includes("prefer")) return "A";
-  if (firstLine.includes(nameB) && firstLine.includes("prefer")) return "B";
-  if (firstLine.includes("officer a") && firstLine.includes("prefer")) return "A";
-  if (firstLine.includes("officer b") && firstLine.includes("prefer")) return "B";
+  if (combined.includes(nameA) && combined.includes("prefer")) return "A";
+  if (combined.includes(nameB) && combined.includes("prefer")) return "B";
+  if (combined.includes("officer a") && combined.includes("prefer")) return "A";
+  if (combined.includes("officer b") && combined.includes("prefer")) return "B";
   return null;
 }
 
-function stripFirstLine(text: string): string {
+function stripPreferenceLine(text: string): string {
   const lines = text.split(/\n/);
-  if (lines.length <= 1) return "";
-  return lines.slice(1).join("\n").trim();
+  const idx = lines.findIndex((rawLine) => {
+    const line = rawLine.trim().toLowerCase();
+    return line.includes("prefer") && (line.includes("my") || line.includes("your"));
+  });
+
+  if (idx === -1) return text;
+  return lines.slice(idx + 1).join("\n").trim();
 }
 
 export async function evaluateResponses(
@@ -86,12 +95,14 @@ export async function evaluateResponses(
 
   const [evalA, evalB] = await Promise.all([
     chatCompletion(config, buildEvalMessages(prompt, aRes, bRes, config, priorDebate), config.modelA).then((text) => {
-      const pref = parsePreference(text, config, "A") ?? "A";
-      return { officer: "A" as const, prefers: pref, reasoning: stripFirstLine(text) };
+      const pref = parsePreference(text, config, "A");
+      if (!pref) throw new Error(`Failed to parse ${config.nameA}'s evaluation preference. Raw response:\n${text.slice(0, 200)}`);
+      return { officer: "A" as const, prefers: pref, reasoning: stripPreferenceLine(text) };
     }),
     chatCompletion(config, buildEvalMessages(prompt, bRes, aRes, config, priorDebate), config.modelB).then((text) => {
-      const pref = parsePreference(text, config, "B") ?? "B";
-      return { officer: "B" as const, prefers: pref, reasoning: stripFirstLine(text) };
+      const pref = parsePreference(text, config, "B");
+      if (!pref) throw new Error(`Failed to parse ${config.nameB}'s evaluation preference. Raw response:\n${text.slice(0, 200)}`);
+      return { officer: "B" as const, prefers: pref, reasoning: stripPreferenceLine(text) };
     }),
   ]);
 
